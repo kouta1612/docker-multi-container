@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t kouta1612/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true kouta1612/react-test npm test
+
+after_sccess:
+  - docker build -t kouta1612/molti-client ./client
+  - docker build -t kouta1612/molti-nginx ./nginx
+  - docker build -t kouta1612/molti-server ./server
+  - docker build -t kouta1612/molti-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push kouta1612/multi-client
+  - docker push kouta1612/multi-nginx
+  - docker push kouta1612/multi-server
+  - docker push kouta1612/multi-worker
